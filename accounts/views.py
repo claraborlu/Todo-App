@@ -4,13 +4,14 @@ from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
-from .serializers import UserSerializer
+from .serializers import UserSerializer, PasswordResetSerializer
 
 
 class UserCreate(APIView):
     """
     Creates the user.
     """
+    
     def post(self, request, format='json'):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
@@ -19,7 +20,6 @@ class UserCreate(APIView):
                 return Response(
                     {
                         'message': 'User created successfully',
-                        'user': serializer.data
                     },
                     status=status.HTTP_201_CREATED
                 )
@@ -49,3 +49,13 @@ class LogoutView(APIView):
     def post(self, request):
         request.user.auth_token.delete()
         return Response(status=status.HTTP_200_OK)
+    
+
+
+class PasswordResetView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = PasswordResetSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Password reset e-mail has been sent."}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
