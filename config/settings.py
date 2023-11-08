@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     'accounts',
+    'todo',
     'rest_framework',
     'rest_framework.authtoken',
     'drf_yasg',
@@ -139,3 +140,5 @@ EMAIL_PORT =  587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'claraborlu24@gmail.com'
 EMAIL_HOST_PASSWORD = 'dwytchmooytfvcey'
+
+APPEND_SLASH=False
