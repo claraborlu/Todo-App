@@ -34,36 +34,24 @@ class TaskListView(ListAPIView):
 
     def get(self, request, *args, **kwargs):
         today = timezone.localdate()
-        completed_tasks_today = Task.objects.filter(
-            user=request.user, created_at__date=today, is_completed=True)
-        uncompleted_tasks_today = Task.objects.filter(
-            user=request.user, created_at__date=today, is_completed=False)
-
-        completed_today_serializer = self.get_serializer(completed_tasks_today, many=True)
-        uncompleted_today_serializer = self.get_serializer(uncompleted_tasks_today, many=True)
+        tasks_today = Task.objects.filter(user=request.user, created_at__date=today, is_completed=False)
+        today_serializer = self.get_serializer(tasks_today, many=True)
+        response_data = today_serializer.data
         
-        response_data = {
-            'Today': {
-                'completed_tasks': completed_today_serializer.data,
-                'uncompleted_tasks': uncompleted_today_serializer.data
-            }
-        }
-
-        if today.weekday() != 0:  # If it's not Monday
-            yesterday = today - timedelta(days=1)
-            uncompleted_tasks_yesterday = Task.objects.filter(
-                user=request.user, 
-                created_at__date=yesterday, 
-                is_completed=False
-            )
-            if uncompleted_tasks_yesterday.exists():
-                yesterday_serializer = self.get_serializer(uncompleted_tasks_yesterday, many=True)
-                response_data['Yesterday'] = yesterday_serializer.data
+        # if today.weekday() != 0:
+        #     yesterday = today - timedelta(days=1)
+        #     uncompleted_tasks_yesterday = Task.objects.filter(
+        #         user=request.user, 
+        #         created_at__date=yesterday, 
+        #         is_completed=False
+        #     )
+        #     if uncompleted_tasks_yesterday.exists():
+        #         yesterday_serializer = self.get_serializer(uncompleted_tasks_yesterday, many=True)
+        #         response_data['Yesterday'] = yesterday_serializer.data
 
         return Response(response_data)
 
     def get_queryset(self):
-        # Overridden by the get method.
         return Task.objects.none()
     
 
