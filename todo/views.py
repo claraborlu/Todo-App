@@ -34,12 +34,22 @@ class TaskListView(ListAPIView):
 
     def get(self, request, *args, **kwargs):
         today = timezone.localdate()
-        tasks_today = Task.objects.filter(user=request.user, created_at__date=today)
-        today_serializer = self.get_serializer(tasks_today, many=True)
+        completed_tasks_today = Task.objects.filter(
+            user=request.user, created_at__date=today, is_completed=True)
+        uncompleted_tasks_today = Task.objects.filter(
+            user=request.user, created_at__date=today, is_completed=False)
+
+        completed_today_serializer = self.get_serializer(completed_tasks_today, many=True)
+        uncompleted_today_serializer = self.get_serializer(uncompleted_tasks_today, many=True)
+        
         response_data = {
-            'Today': today_serializer.data
+            'Today': {
+                'completed_tasks': completed_today_serializer.data,
+                'uncompleted_tasks': uncompleted_today_serializer.data
+            }
         }
-        if today.weekday() != 0:
+
+        if today.weekday() != 0:  # If it's not Monday
             yesterday = today - timedelta(days=1)
             uncompleted_tasks_yesterday = Task.objects.filter(
                 user=request.user, 
@@ -53,6 +63,7 @@ class TaskListView(ListAPIView):
         return Response(response_data)
 
     def get_queryset(self):
+        # Overridden by the get method.
         return Task.objects.none()
     
 
