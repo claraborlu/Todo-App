@@ -8,6 +8,7 @@ from .serializers import TaskSerializer, MarkCompletedTaskSerializer
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, ListAPIView, UpdateAPIView
 from .permissions import IsOwnerOrSuperuser
+from .utils import calculate_weekly_report
 
 
 class AddTaskView(APIView):
@@ -78,3 +79,11 @@ class MarkTaskCompletedView(UpdateAPIView):
         task.is_completed = not task.is_completed
         task.save()
         return Response(self.get_serializer(task).data, status=status.HTTP_200_OK)
+    
+class WeeklyReportView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        report = calculate_weekly_report(request.user)
+        return Response(report)
