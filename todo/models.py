@@ -12,7 +12,7 @@ class Task(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks')
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-    priority = models.CharField(max_length=2, choices=PRIORITY_CHOICES, default='P1')
+    priority = models.CharField(max_length=2, choices=PRIORITY_CHOICES, default='P4')
     is_completed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
