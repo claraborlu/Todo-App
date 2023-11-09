@@ -157,5 +157,11 @@ CORS_ALLOW_HEADERS = [
     'x-csrftoken',
     'x-requested-with',
 ]
-CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ORIGIN_WHITELIST = [
+    'https://localhost:8000',
+    'https://127.0.0.1:3000',
+    'http://localhost:3000',
+    'http://localhost:4200',
+]
 CORS_ALLOW_CREDENTIALS = True
