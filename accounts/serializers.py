@@ -6,6 +6,7 @@ from django.conf import settings
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
+    email = serializers.EmailField(required=True)
 
     class Meta:
         model = User
