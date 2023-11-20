@@ -55,7 +55,7 @@ class TaskListView(ListAPIView):
         return Task.objects.none()
     
 
-class UpdateDeleteTaskView(RetrieveUpdateDestroyAPIView):
+class RetrieveUpdateDeleteTaskView(RetrieveUpdateDestroyAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
     authentication_classes = [TokenAuthentication]

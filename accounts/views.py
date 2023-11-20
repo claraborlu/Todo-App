@@ -4,13 +4,11 @@ from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
-from .serializers import UserSerializer, PasswordResetSerializer
+from rest_framework.authentication import TokenAuthentication
+from .serializers import UserSerializer, PasswordResetSerializer, ChangePasswordSerializer
 
 
 class UserCreate(APIView):
-    """
-    Creates the user.
-    """
     
     def post(self, request, format='json'):
         serializer = UserSerializer(data=request.data)
@@ -49,8 +47,6 @@ class LogoutView(APIView):
     def post(self, request):
         request.user.auth_token.delete()
         return Response(status=status.HTTP_200_OK)
-    
-
 
 class PasswordResetView(APIView):
     def post(self, request, *args, **kwargs):
@@ -58,4 +54,21 @@ class PasswordResetView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response({"message": "Password reset e-mail has been sent."}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ChangePasswordView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = ChangePasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            user = request.user
+            if not user.check_password(serializer.validated_data['old_password']):
+                return Response({"old_password": "Wrong password."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            user.set_password(serializer.validated_data['new_password'])
+            user.save()
+            return Response({'status': 'success', 'message': 'Password updated successfully'}, status=status.HTTP_200_OK)
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

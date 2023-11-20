@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from django.contrib.auth.forms import PasswordResetForm
 from django.conf import settings
-
+from django.contrib.auth.password_validation import validate_password
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
@@ -35,3 +35,13 @@ class PasswordResetSerializer(serializers.Serializer):
         reset_form = PasswordResetForm(data=self.validated_data)
         if reset_form.is_valid():
             reset_form.save(**options)
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True, validators=[validate_password])
+    confirm_new_password = serializers.CharField(required=True)
+
+    def validate(self, data):
+        if data['new_password'] != data['confirm_new_password']:
+            raise serializers.ValidationError({'confirm_new_password': "New passwords must match."})
+        return data
